@@ -11,7 +11,6 @@ const mongoose = require("mongoose");
 const socket = require("socket.io");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
 
@@ -48,7 +47,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
 app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
