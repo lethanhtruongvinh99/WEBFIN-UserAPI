@@ -10,7 +10,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const socket = require("socket.io");
 
-var indexRouter = require("./routes/index");
+const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
 
