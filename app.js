@@ -13,12 +13,13 @@ const socket = require("socket.io");
 const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
+dotenv.config();
 
 var app = express();
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT;
 const db = mongoose.connection;
-dotenv.config();
+
 require("./src/passport");
 
 //connect to db
@@ -74,8 +75,8 @@ io.on("connection", (socket) => {
   console.log(`Connected!`);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+// app.listen(process.env.PORT, () => {
+//   console.log(`Server is listening on port ${PORT}`);
+// });
 
 module.exports = app;
