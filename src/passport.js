@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const BCRYPT_SALT = 10;
 
 const passport = require("passport");
+const { findOne } = require("../src/models/account");
 const localStategy = require("passport-local").Strategy;
 const JWTStategy = require("passport-jwt").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJWT;
@@ -30,10 +31,11 @@ passport.use(
             if (err) {
               return done(err);
             }
-            const newAccount = new Account();
-            newAccount.username = username;
+            const newAccount = new Account(req.body);
+            // newAccount.username = username;
             newAccount.password = hash;
-
+            newAccount.role = 0; //0 is User
+            console.log(req.body);
             newAccount.save((err, result) => {
               if (err) {
                 console.log(err);
@@ -61,14 +63,14 @@ passport.use(
     async (username, password, done) => {
       try {
         const findAccount = await Account.findOne({ username: username });
-        console.log(findAccount);
+        // console.log(findAccount);
         if (!findAccount) {
           return done(null, false, { message: "Account is not exist!" });
         } else {
           bcrypt.compare(password, findAccount.password, (err, result) => {
             console.log(result);
             if (result === true) {
-              return done(null, { account: findAccount });
+              return done(null, findAccount);
             } else {
               return done(null, false, {
                 message: "Incorrect username or password!",
@@ -82,3 +84,24 @@ passport.use(
     }
   )
 );
+
+// const opts = {
+//   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+//   secretOrKey: process.env.SECRET,
+// };
+
+// passport.use(
+//   "jwt",
+//   new JWTStategy(opts, async (jwt_payload, done) => {
+//     try {
+//       const user = await Account.findOne({ _id: jwt_payload._id });
+//       if (user) {
+//         done(null, user);
+//       } else {
+//         done(null, falsem, { message: "User not found" });
+//       }
+//     } catch (err) {
+//       done(err);
+//     }
+//   })
+// );

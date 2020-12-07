@@ -3,7 +3,7 @@ const Account = require("../models/account");
 const { check, validationResult } = require("express-validator");
 exports.AccountValidate = [
   (req, res, next) => {
-    console.log(`Fire validate`);
+    // console.log(`Fire validate`);
     // check("email", "Invalid email.").isEmail();
     // check("email", "Email is required.").not().isEmpty();
     // check("username", "Username is required.").not().isEmpty();

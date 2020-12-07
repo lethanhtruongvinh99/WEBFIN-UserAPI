@@ -16,16 +16,18 @@ router.get("/signup", async (req, res) => {
 
 router.post("/signup", AccountValidate, (req, res, next) => {
   passport.authenticate("signup", { session: false }, (err, user, info) => {
-    console.log(`fire here route`);
     if (err) {
       return res.status(400).json({ message: err.message });
     }
-
     if (info) {
       console.log(info);
       return res.status(400).json({ message: info.message });
     } else {
-      const token = jwt.sign({ _id: user._id }, process.env.SECRET);
+      // console.log(user);
+      const token = jwt.sign(
+        { _id: user._id, username: user.username },
+        process.env.SECRET
+      );
       res
         .status(200)
         .json({
@@ -51,7 +53,11 @@ router.post("/login", AccountValidate, (req, res, next) => {
       console.log(info);
       return res.status(400).json({ message: info.message });
     } else {
-      const token = jwt.sign({ _id: user._id }, process.env.SECRET);
+      console.log(user);
+      const token = jwt.sign(
+        { _id: user._id, username: user.username },
+        process.env.SECRET
+      );
       res
         .status(200)
         .json({
