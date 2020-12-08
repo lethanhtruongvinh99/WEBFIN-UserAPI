@@ -9,6 +9,7 @@ const http = require("http");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const socket = require("socket.io");
+const jwt = require("jsonwebtoken");
 
 const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
@@ -17,7 +18,8 @@ dotenv.config();
 
 var app = express();
 
-const PORT = process.env.PORT;
+const PORT = 8080;
+
 const db = mongoose.connection;
 
 require("./src/passport");
@@ -68,16 +70,28 @@ app.use(function (err, req, res, next) {
 const server = http.createServer(app);
 const io = socket(server, {
   cors: true,
-  origins: [process.env.CLIENT],
+  origins: [process.env.CLIENT_DEV],
 });
 
 io.on("connection", (socket) => {
   console.log(`Connected!`);
-  socket.on('')
+  socket.on("login", ({ token }) => {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    // console.log(ENDPOINT);
+    console.log(decoded);
+    console.log(typeof decoded);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Disconnet");
+  });
 });
 
-// app.listen(process.env.PORT, () => {
-//   console.log(`Server is listening on port ${PORT}`);
-// });
+server.listen(8080, () => {
+  console.log(`....................................`);
+  console.log(`Server is listening on port: ${PORT}`);
+  console.log(`.                                  .`);
+  console.log(`....................................`);
+});
 
 module.exports = app;
