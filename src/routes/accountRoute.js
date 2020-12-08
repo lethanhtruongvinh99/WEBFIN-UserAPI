@@ -3,6 +3,7 @@ const passport = require("passport");
 const jwt = require("jsonwebtoken");
 const { AccountValidate } = require("../validator/accountValidate");
 const Account = require("../models/account");
+
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -68,6 +69,41 @@ router.post("/login", AccountValidate, (req, res, next) => {
         .end();
     }
   })(req, res, next);
+});
+
+router.get(
+  "/facebook",
+  passport.authenticate("facebook", {
+    scope: ["email", "user_birthday", "user_gender"],
+  })
+);
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook"),
+  (req, res) => {
+    console.log(req.user);
+    return res
+      .status(200)
+      .json({
+        auth: true,
+        accessToken: req.user.accessToken,
+        message: "Logged in successfully!",
+      })
+      .end();
+  }
+);
+
+router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
+router.get("/google/callback", passport.authenticate("google"), (req, res) => {
+  console.log(req.user);
+  return res
+    .status(200)
+    .json({
+      auth: true,
+      accessToken: req.user.accessToken,
+      message: "Logged in successfully!",
+    })
+    .end();
 });
 
 module.exports = router;
