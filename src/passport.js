@@ -138,32 +138,36 @@ passport.use(
     },
     function (accessToken, refreshToken, profile, done) {
       let fbData = profile._json;
-      console.log(fbData);
-      process.nextTick(function () {
-        let user_name = fbData.email.split("@")[0];
-        Account.findOne({ username: user_name }, function (err, account) {
-          if (err) return done(err);
-          if (account) {
-            return done(null, account);
-          } else {
-            let newAccount = new Account();
-            newAccount.username = user_name;
-            newAccount.fullName = fbData.name;
-            newAccount.dob = new Date().getTime();
-            newAccount.email = fbData.email;
-            newAccount.role = 0;
-            newAccount.isCreatedAt = new Date().getTime();
-            newAccount.accessToken = jwt.sign(
-              { _id: fbData.id, username: user_name },
-              process.env.SECRET
-            );
-            newAccount.save(function (err) {
-              if (err) throw err;
-              return done(null, newAccount);
-            });
-          }
+      //console.log(fbData);
+      try {
+        process.nextTick(function () {
+          let user_name = fbData.email.split("@")[0];
+          Account.findOne({ username: user_name }, function (err, account) {
+            if (err) return done(err);
+            if (account) {
+              return done(null, account);
+            } else {
+              let newAccount = new Account();
+              newAccount.username = user_name;
+              newAccount.fullName = fbData.name;
+              newAccount.dob = new Date().getTime();
+              newAccount.email = fbData.email;
+              newAccount.role = 0;
+              newAccount.isCreatedAt = new Date().getTime();
+              newAccount.accessToken = jwt.sign(
+                { _id: fbData.id, username: user_name },
+                process.env.SECRET
+              );
+              newAccount.save(function (err) {
+                if (err) throw err;
+                return done(null, newAccount);
+              });
+            }
+          });
         });
-      });
+      } catch (err) {
+        return done({ message: err });
+      }
     }
   )
 );
@@ -189,32 +193,36 @@ passport.use(
       ],
     },
     function (accessToken, refreshToken, profile, done) {
-      console.log(profile);
-      process.nextTick(function () {
-        let user_name = profile._json.email.split("@")[0];
-        Account.findOne({ username: user_name }, function (err, account) {
-          if (err) return done(err);
-          if (account) {
-            return done(null, account);
-          } else {
-            let newAccount = new Account();
-            newAccount.username = user_name;
-            newAccount.fullName = profile.displayName;
-            newAccount.dob = new Date().getTime();
-            newAccount.email = profile._json.email;
-            newAccount.role = 0;
-            newAccount.isCreatedAt = new Date().getTime();
-            newAccount.accessToken = jwt.sign(
-              { _id: profile.id, username: user_name },
-              process.env.SECRET
-            );
-            newAccount.save(function (err) {
-              if (err) throw err;
-              return done(null, newAccount);
-            });
-          }
+      //console.log(profile);
+      try {
+        process.nextTick(function () {
+          let user_name = profile._json.email.split("@")[0];
+          Account.findOne({ username: user_name }, function (err, account) {
+            if (err) return done(err);
+            if (account) {
+              return done(null, account);
+            } else {
+              let newAccount = new Account();
+              newAccount.username = user_name;
+              newAccount.fullName = profile.displayName;
+              newAccount.dob = new Date().getTime();
+              newAccount.email = profile._json.email;
+              newAccount.role = 0;
+              newAccount.isCreatedAt = new Date().getTime();
+              newAccount.accessToken = jwt.sign(
+                { _id: profile.id, username: user_name },
+                process.env.SECRET
+              );
+              newAccount.save(function (err) {
+                if (err) throw err;
+                return done(null, newAccount);
+              });
+            }
+          });
         });
-      });
+      } catch (err) {
+        return done({ message: err });
+      }
     }
   )
 );
