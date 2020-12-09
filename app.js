@@ -71,14 +71,37 @@ const io = socket(server, {
   origins: [process.env.CLIENT],
 });
 
+let onlineUsers = [];
+
 io.on("connection", (socket) => {
-  console.log(`Connected!`);
   socket.on("login", ( {token} ) => {
     try{
+      console.log(`Connected!`);
+      socket.join('onlineUsers');
       const decoded = jwt.verify(token, process.env.SECRET);
-      // console.log(ENDPOINT);
-      console.log(decoded);
-      console.log(typeof decoded);
+      socket.username = decoded.username;
+      onlineUsers.push({username: socket.username});
+      
+      //Broad cast to connected clients
+      socket.to('onlineUsers').emit('onlineUsersChanged', {onlineUsers} );
+      //Send list of online users back to client
+      socket.emit('onlineUsersChanged', {onlineUsers});
+      //console.log(onlineUsers);
+    }
+    catch (e)
+    {
+      console.log(e);
+    }
+  });
+
+  socket.on('logout', () => {
+    try{
+      onlineUsers = onlineUsers.filter(item => item.username !== socket.username);
+      //Broad cast to connected clients
+      socket.to('onlineUsers').emit('onlineUsersChanged', {onlineUsers} );
+      socket.leave('onlineUsers');
+      console.log('Client logged out');
+      //console.log(onlineUsers);
     }
     catch (e)
     {
@@ -87,7 +110,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("Disconnet");
+    onlineUsers = onlineUsers.filter(item => item.username !== socket.username);
+    socket.to('onlineUsers').emit('onlineUsersChanged', {onlineUsers});
+    socket.leave('onlineUsers');
+    console.log("Client Disconnected");
   });
 });
 

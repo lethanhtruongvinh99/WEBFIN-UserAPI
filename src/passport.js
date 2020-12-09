@@ -25,7 +25,7 @@ passport.use(
       try {
         console.log(`Fire passport.js ${username}`);
         const findAccount = await Account.findOne({ username: username });
-        console.log(findAccount);
+       
         if (findAccount) {
           return done(null, false, { message: "Username is already exist" });
         } else {
@@ -38,7 +38,7 @@ passport.use(
             // newAccount.username = username;
             newAccount.password = hash;
             newAccount.role = 0; //0 is User
-            console.log(req.body);
+           
             newAccount.save((err, result) => {
               if (err) {
                 console.log(err);
@@ -71,7 +71,7 @@ passport.use(
           return done(null, false, { message: "Account is not exist!" });
         } else {
           bcrypt.compare(password, findAccount.password, (err, result) => {
-            console.log(result);
+           
             if (result === true) {
               return done(null, findAccount);
             } else {
