@@ -25,7 +25,7 @@ passport.use(
       try {
         console.log(`Fire passport.js ${username}`);
         const findAccount = await Account.findOne({ username: username });
-       
+
         if (findAccount) {
           return done(null, false, { message: "Username is already exist" });
         } else {
@@ -38,7 +38,7 @@ passport.use(
             // newAccount.username = username;
             newAccount.password = hash;
             newAccount.role = 0; //0 is User
-           
+
             newAccount.save((err, result) => {
               if (err) {
                 console.log(err);
@@ -71,7 +71,6 @@ passport.use(
           return done(null, false, { message: "Account is not exist!" });
         } else {
           bcrypt.compare(password, findAccount.password, (err, result) => {
-           
             if (result === true) {
               return done(null, findAccount);
             } else {
@@ -173,8 +172,22 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: "/auth/google/callback",
+      profileFields: [
+        "id",
+        "emails",
+        "birthday",
+        "about",
+        "gender",
+        "link",
+        "locale",
+        "displayName",
+        "timezone",
+        "updated_time",
+        "verified",
+      ],
     },
     function (accessToken, refreshToken, profile, done) {
+      console.log(profile);
       process.nextTick(function () {
         Account.findOne({ username: profile.id }, function (err, account) {
           if (err) return done(err);
@@ -182,14 +195,15 @@ passport.use(
             return done(null, account);
           } else {
             let newAccount = new Account();
-            newAccount.username = profile.id;
+            let user_name = profile._json.email.split("@")[0];
+            newAccount.username = user_name;
             newAccount.fullName = profile.displayName;
             newAccount.dob = new Date().getTime();
-            //newAccount.email = fbData.email;
+            newAccount.email = profile._json.email;
             newAccount.role = 0;
             newAccount.isCreatedAt = new Date().getTime();
             newAccount.accessToken = jwt.sign(
-              { _id: profile.id },
+              { _id: profile.id, username: user_name },
               process.env.SECRET
             );
             newAccount.save(function (err) {

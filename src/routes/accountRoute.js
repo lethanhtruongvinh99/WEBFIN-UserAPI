@@ -82,15 +82,18 @@ router.get(
   passport.authenticate("facebook"),
   (req, res) => {
     const token = req.user.accessToken;
-    res.redirect(process.env.CLIENT + '/auth/' + token);
+    res.redirect(process.env.CLIENT + "/auth/" + token);
   }
 );
 
-router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
   console.log(req.user);
   const token = req.user.accessToken;
-  res.redirect(process.env.CLIENT + '/auth/' + token);
+  res.redirect(process.env.CLIENT + "/auth/" + token);
 });
 
 module.exports = router;
