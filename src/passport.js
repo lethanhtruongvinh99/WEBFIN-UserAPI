@@ -138,14 +138,15 @@ passport.use(
     },
     function (accessToken, refreshToken, profile, done) {
       let fbData = profile._json;
+      console.log(fbData);
       process.nextTick(function () {
-        Account.findOne({ username: fbData.id }, function (err, account) {
+        let user_name = fbData.email.split("@")[0];
+        Account.findOne({ username: user_name }, function (err, account) {
           if (err) return done(err);
           if (account) {
             return done(null, account);
           } else {
             let newAccount = new Account();
-            let user_name = fbData.email.split("@")[0];
             newAccount.username = user_name;
             newAccount.fullName = fbData.name;
             newAccount.dob = new Date().getTime();
@@ -190,13 +191,13 @@ passport.use(
     function (accessToken, refreshToken, profile, done) {
       console.log(profile);
       process.nextTick(function () {
-        Account.findOne({ username: profile.id }, function (err, account) {
+        let user_name = profile._json.email.split("@")[0];
+        Account.findOne({ username: user_name }, function (err, account) {
           if (err) return done(err);
           if (account) {
             return done(null, account);
           } else {
             let newAccount = new Account();
-            let user_name = profile._json.email.split("@")[0];
             newAccount.username = user_name;
             newAccount.fullName = profile.displayName;
             newAccount.dob = new Date().getTime();
