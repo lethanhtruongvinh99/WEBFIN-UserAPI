@@ -18,8 +18,6 @@ dotenv.config();
 
 var app = express();
 
-const PORT = 8080;
-
 const db = mongoose.connection;
 
 require("./src/passport");
@@ -49,7 +47,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
+//app.use("/", indexRouter);
 app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
@@ -70,16 +68,22 @@ app.use(function (err, req, res, next) {
 const server = http.createServer(app);
 const io = socket(server, {
   cors: true,
-  origins: [process.env.CLIENT_DEV],
+  origins: [process.env.CLIENT],
 });
 
 io.on("connection", (socket) => {
   console.log(`Connected!`);
-  socket.on("login", ({ token }) => {
-    const decoded = jwt.verify(token, process.env.SECRET);
-    // console.log(ENDPOINT);
-    console.log(decoded);
-    console.log(typeof decoded);
+  socket.on("login", ( {token} ) => {
+    try{
+      const decoded = jwt.verify(token, process.env.SECRET);
+      // console.log(ENDPOINT);
+      console.log(decoded);
+      console.log(typeof decoded);
+    }
+    catch (e)
+    {
+      console.log(e);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -87,9 +91,9 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(8080, () => {
+server.listen(process.env.PORT, () => {
   console.log(`....................................`);
-  console.log(`Server is listening on port: ${PORT}`);
+  console.log(`Server is listening on port: ${process.env.PORT}`);
   console.log(`.                                  .`);
   console.log(`....................................`);
 });

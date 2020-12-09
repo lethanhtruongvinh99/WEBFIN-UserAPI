@@ -81,29 +81,16 @@ router.get(
   "/facebook/callback",
   passport.authenticate("facebook"),
   (req, res) => {
-    console.log(req.user);
-    return res
-      .status(200)
-      .json({
-        auth: true,
-        accessToken: req.user.accessToken,
-        message: "Logged in successfully!",
-      })
-      .end();
+    const token = req.user.accessToken;
+    res.redirect(process.env.CLIENT + '/auth/' + token);
   }
 );
 
 router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
 router.get("/google/callback", passport.authenticate("google"), (req, res) => {
   console.log(req.user);
-  return res
-    .status(200)
-    .json({
-      auth: true,
-      accessToken: req.user.accessToken,
-      message: "Logged in successfully!",
-    })
-    .end();
+  const token = req.user.accessToken;
+  res.redirect(process.env.CLIENT + '/auth/' + token);
 });
 
 module.exports = router;
