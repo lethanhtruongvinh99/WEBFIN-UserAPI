@@ -145,14 +145,15 @@ passport.use(
             return done(null, account);
           } else {
             let newAccount = new Account();
-            newAccount.username = fbData.id;
+            let user_name = fbData.email.split("@")[0];
+            newAccount.username = user_name;
             newAccount.fullName = fbData.name;
             newAccount.dob = new Date().getTime();
             newAccount.email = fbData.email;
             newAccount.role = 0;
             newAccount.isCreatedAt = new Date().getTime();
             newAccount.accessToken = jwt.sign(
-              { _id: fbData.id },
+              { _id: fbData.id, username: user_name },
               process.env.SECRET
             );
             newAccount.save(function (err) {
