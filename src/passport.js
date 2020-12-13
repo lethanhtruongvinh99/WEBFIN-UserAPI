@@ -4,8 +4,8 @@ const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const { findOne } = require("../src/models/account");
 const localStategy = require("passport-local").Strategy;
-const JWTStategy = require("passport-jwt").Strategy;
-const ExtractJWT = require("passport-jwt").ExtractJWT;
+const JwtStrategy = require("passport-jwt").Strategy,
+  ExtractJwt = require("passport-jwt").ExtractJwt;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const Account = require("../src/models/account");
@@ -87,26 +87,29 @@ passport.use(
   )
 );
 
-// const opts = {
-//   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-//   secretOrKey: process.env.SECRET,
-// };
+const opts = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken("Authorization"),
+  secretOrKey: process.env.SECRET,
+};
 
-// passport.use(
-//   "jwt",
-//   new JWTStategy(opts, async (jwt_payload, done) => {
-//     try {
-//       const user = await Account.findOne({ _id: jwt_payload._id });
-//       if (user) {
-//         done(null, user);
-//       } else {
-//         done(null, falsem, { message: "User not found" });
-//       }
-//     } catch (err) {
-//       done(err);
-//     }
-//   })
-// );
+passport.use(
+  "jwt",
+  new JwtStrategy(opts, async (jwt_payload, done) => {
+    try {
+      console.log("Fire PP-JWT");
+      // console.log(jwt_payload);
+      const user = await Account.findOne({ _id: jwt_payload._id });
+      if (user) {
+        done(null, user);
+      } else {
+        done(null, false, { message: "User not found" });
+      }
+    } catch (err) {
+      console.log(err);
+      done(err);
+    }
+  })
+);
 
 passport.serializeUser(function (user, done) {
   done(null, user);
