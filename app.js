@@ -14,6 +14,7 @@ const jwt = require("jsonwebtoken");
 const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
+const { decode } = require("punycode");
 dotenv.config();
 
 var app = express();
@@ -126,6 +127,25 @@ io.on("connection", (socket) => {
     socket.to("onlineUsers").emit("onlineUsersChanged", { onlineUsers });
     socket.leave("onlineUsers");
     console.log("Client Disconnected");
+  });
+
+  socket.on("join", ({ roomIdT, token }) => {
+    // console.log("join: " + roomIdT);
+    // console.log(roomIdT + " " + token);
+    const decoded = jwt.verify(token, process.env.SECRET);
+
+    socket.broadcast.to(roomIdT).emit("message", {
+      message: "Hello all!",
+      username: decoded.username,
+    });
+    socket.join(roomIdT);
+  });
+  socket.on("sendMessage", ({ roomIdT, message, token }) => {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    io.to(roomIdT).emit("message", {
+      message: message,
+      username: decoded.username,
+    });
   });
 });
 

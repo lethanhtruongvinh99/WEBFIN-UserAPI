@@ -41,15 +41,15 @@ router.post("/add", (req, res) => {
         if (result.status) {
           const addResult = await addNewMessageToRoom(room.room, message);
           if (addResult.status) {
+            return res.status(200).json(result.message);
           } else {
-            res.json(addResult.err);
+            return res.status(400).json(addResult.err);
           }
-          return res.json(result.message);
         } else {
-          return res.json("error");
+          return res.status(400).json(result.err);
         }
       } else {
-        res.json("error");
+        res.status(400).json("error");
       }
     }
   })(req, res);

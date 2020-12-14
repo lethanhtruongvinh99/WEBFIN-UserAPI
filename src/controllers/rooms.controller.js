@@ -42,7 +42,7 @@ const addNewMemberToRoom = async (room, user) => {
     let updatedRoom = room;
     updatedRoom.members.push(user._id);
     const result = await Room.findOneAndUpdate(
-      { _id: room.id },
+      { _id: room._id },
       updatedRoom,
       (err) => {
         if (err) {
