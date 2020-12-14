@@ -14,6 +14,7 @@ const jwt = require("jsonwebtoken");
 const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
+const { decode } = require("punycode");
 dotenv.config();
 
 var app = express();
@@ -57,7 +58,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 //app.use("/", indexRouter);
+app.use("/", indexRouter);
 app.use("/auth", authRouter);
+app.use("/room", require("./src/routes/roomRoute"));
+app.use("/message", require("./src/routes/messageRoute"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -83,46 +87,65 @@ const io = socket(server, {
 let onlineUsers = [];
 
 io.on("connection", (socket) => {
-  socket.on("login", ( {token} ) => {
-    try{
+  socket.on("login", ({ token }) => {
+    try {
       console.log(`Connected!`);
-      socket.join('onlineUsers');
+      socket.join("onlineUsers");
       const decoded = jwt.verify(token, process.env.SECRET);
       socket.username = decoded.username;
-      onlineUsers.push({username: socket.username});
-      
+      onlineUsers.push({ username: socket.username });
+
       //Broad cast to connected clients
-      socket.to('onlineUsers').emit('onlineUsersChanged', {onlineUsers} );
+      socket.to("onlineUsers").emit("onlineUsersChanged", { onlineUsers });
       //Send list of online users back to client
-      socket.emit('onlineUsersChanged', {onlineUsers});
+      socket.emit("onlineUsersChanged", { onlineUsers });
       //console.log(onlineUsers);
-    }
-    catch (e)
-    {
+    } catch (e) {
       console.log(e);
     }
   });
 
-  socket.on('logout', () => {
-    try{
-      onlineUsers = onlineUsers.filter(item => item.username !== socket.username);
+  socket.on("logout", () => {
+    try {
+      onlineUsers = onlineUsers.filter(
+        (item) => item.username !== socket.username
+      );
       //Broad cast to connected clients
-      socket.to('onlineUsers').emit('onlineUsersChanged', {onlineUsers} );
-      socket.leave('onlineUsers');
-      console.log('Client logged out');
+      socket.to("onlineUsers").emit("onlineUsersChanged", { onlineUsers });
+      socket.leave("onlineUsers");
+      console.log("Client logged out");
       //console.log(onlineUsers);
-    }
-    catch (e)
-    {
+    } catch (e) {
       console.log(e);
     }
   });
 
   socket.on("disconnect", () => {
-    onlineUsers = onlineUsers.filter(item => item.username !== socket.username);
-    socket.to('onlineUsers').emit('onlineUsersChanged', {onlineUsers});
-    socket.leave('onlineUsers');
+    onlineUsers = onlineUsers.filter(
+      (item) => item.username !== socket.username
+    );
+    socket.to("onlineUsers").emit("onlineUsersChanged", { onlineUsers });
+    socket.leave("onlineUsers");
     console.log("Client Disconnected");
+  });
+
+  socket.on("join", ({ roomIdT, token }) => {
+    // console.log("join: " + roomIdT);
+    // console.log(roomIdT + " " + token);
+    const decoded = jwt.verify(token, process.env.SECRET);
+
+    socket.broadcast.to(roomIdT).emit("message", {
+      message: "Hello all!",
+      username: decoded.username,
+    });
+    socket.join(roomIdT);
+  });
+  socket.on("sendMessage", ({ roomIdT, message, token }) => {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    io.to(roomIdT).emit("message", {
+      message: message,
+      username: decoded.username,
+    });
   });
 });
 

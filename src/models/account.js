@@ -8,6 +8,27 @@ const accountChema = new Schema({
   email: { type: String, unique: false, trim: true },
   password: { type: String, trim: true, minlength: 8 },
   accessToken: { type: String, trim: true },
+  //rooms are created by that Account
+  rooms: [
+    {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: "Room",
+      },
+      name: String,
+      isCreatedAt: Date,
+    },
+  ],
+  messages: [
+    {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: "Message",
+      },
+      content: String,
+      isCreatedAt: Date,
+    },
+  ],
   role: Number,
   isDeleted: Boolean,
   isCreatedAt: Date,
