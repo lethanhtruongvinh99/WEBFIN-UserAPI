@@ -25,7 +25,7 @@ router.post("/add", (req, res) => {
     } else {
       let message = new Message();
       //roomId in req.body.roomId
-      //   const roomId = "5fd610d8002ffd17b03ea21c";
+      //const roomId = "5fd610d8002ffd17b03ea21c";
       const room = await findRoomById(req.body.roomId);
       if (room.status) {
         message.content = req.body.content;

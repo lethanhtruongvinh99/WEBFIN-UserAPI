@@ -139,11 +139,25 @@ io.on("connection", (socket) => {
       username: decoded.username,
     });
     socket.join(roomIdT);
+    io.to(roomIdT).emit("Username", decoded.username);
   });
+
   socket.on("sendMessage", ({ roomIdT, message, token }) => {
     const decoded = jwt.verify(token, process.env.SECRET);
     io.to(roomIdT).emit("message", {
       message: message,
+      username: decoded.username,
+    });
+  });
+
+  socket.on("sendMove", ({ roomIdT, move, token }) => {
+    console.log("ROOMID:" + roomIdT);
+    console.log("move" + move);
+    console.log("token" + token);
+    const decoded = jwt.verify(token, process.env.SECRET);
+    console.log("decoded" + decoded.username);
+    io.to(roomIdT).emit("sendMove", {
+      move: move,
       username: decoded.username,
     });
   });
