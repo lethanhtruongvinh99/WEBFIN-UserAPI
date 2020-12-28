@@ -85,7 +85,8 @@ const io = socket(server, {
 });
 
 let onlineUsers = [];
-
+let clients = [];
+let usersInRoom = [];
 io.on("connection", (socket) => {
   socket.on("login", ({ token }) => {
     try {
@@ -133,13 +134,25 @@ io.on("connection", (socket) => {
     // console.log("join: " + roomIdT);
     // console.log(roomIdT + " " + token);
     const decoded = jwt.verify(token, process.env.SECRET);
+    if (!usersInRoom[roomIdT]) usersInRoom[roomIdT] = [];
+    usersInRoom[roomIdT].push(decoded.username);
+
+    var orderUser = usersInRoom[roomIdT].length;
+    console.log("SOCKET ON_JOIN -- OrderUser: ", usersInRoom[roomIdT].length);
+
+    if (!clients[roomIdT]) clients[roomIdT] = [];
+    clients[roomIdT].push(socket.id);
+
+    console.log("SOCKET ON_JOIN -- socket.id_2: ", clients[roomIdT][orderUser - 1]);
 
     socket.broadcast.to(roomIdT).emit("message", {
       message: "Hello all!",
       username: decoded.username,
     });
+
     socket.join(roomIdT);
     io.to(roomIdT).emit("Username", decoded.username);
+    io.to(clients[roomIdT][orderUser - 1]).emit("turnName", orderUser === 1 ? "X" : "O");
   });
 
   socket.on("sendMessage", ({ roomIdT, message, token }) => {
@@ -150,15 +163,12 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("sendMove", ({ roomIdT, move, token }) => {
-    console.log("ROOMID:" + roomIdT);
-    console.log("move" + move);
-    console.log("token" + token);
+  socket.on("sendMove", ({ roomIdT, move, token, opponentTurnName }) => {
     const decoded = jwt.verify(token, process.env.SECRET);
-    console.log("decoded" + decoded.username);
-    io.to(roomIdT).emit("sendMove", {
+    socket.broadcast.to(roomIdT).emit("sendMove", {
       move: move,
       username: decoded.username,
+      opponentTurnName: opponentTurnName
     });
   });
 });
