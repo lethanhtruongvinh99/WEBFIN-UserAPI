@@ -12,6 +12,10 @@ const Room = require("../models/room");
 router.get("/add", (req, res) => {
   res.json("Create a new room!");
 });
+
+router.get("/", (req, res) => {
+  res.json("Get all available room!");
+})
 router.post("/add", (req, res) => {
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
@@ -69,5 +73,6 @@ router.post("/join", (req, res) => {
     }
   })(req, res);
 });
+//close room when the play A aka owner leave.
 
 module.exports = router;
