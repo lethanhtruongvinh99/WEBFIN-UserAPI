@@ -7,7 +7,9 @@ const accountChema = new Schema({
   dob: Date,
   email: { type: String, unique: false, trim: true },
   password: { type: String, trim: true, minlength: 8 },
-  accessToken: { type: String, trim: true },
+
+  isActivate: {type: Boolean, default: false},
+  score: {type: Number, default: 0},
   //rooms are created by that Account
   rooms: [
     {
@@ -29,9 +31,9 @@ const accountChema = new Schema({
       isCreatedAt: Date,
     },
   ],
-  role: Number,
-  isDeleted: Boolean,
-  isCreatedAt: Date,
-  isUpdatedAt: Date,
+  role: {type: Number, default: 0},
+  isDeleted: {type: Boolean, default: false},
+  isCreatedAt: {type: Date, default: new Date},
+  isUpdatedAt: {type: Date, default: null},
 });
 module.exports = mongoose.model("Account", accountChema);

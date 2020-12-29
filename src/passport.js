@@ -29,16 +29,13 @@ passport.use(
         if (findAccount) {
           return done(null, false, { message: "Username is already exist" });
         } else {
-          console.log(`Not exist`);
           bcrypt.hash(password, BCRYPT_SALT, (err, hash) => {
             if (err) {
               return done(err);
             }
             const newAccount = new Account(req.body);
-            // newAccount.username = username;
             newAccount.password = hash;
             newAccount.role = 0; //0 is User
-
             newAccount.save((err, result) => {
               if (err) {
                 console.log(err);
@@ -72,7 +69,11 @@ passport.use(
         } else {
           bcrypt.compare(password, findAccount.password, (err, result) => {
             if (result === true) {
-              return done(null, findAccount);
+              if (findAccount.isActivate) {
+                return done(null, findAccount);
+              } else {
+                return done(null, false, { message: "Confirm via your e-mail." });
+              }
             } else {
               return done(null, false, {
                 message: "Incorrect username or password!",
