@@ -15,6 +15,19 @@ const findAccountByUsername = async (username) => {
     return err;
   }
 };
+
+const findAccountById = async (id) => {
+  try {
+    const account = await Account.findOne({ _id: id});
+    if (account) {
+      return {status: true, account: account};
+    } else {
+      return {status: false, account: null};
+    } 
+  } catch(err){
+    return err;
+  }
+}
 const activateAccount = async (username) => {
   const account = await Account.findOne({ username: username });
   if (account) {
@@ -41,4 +54,4 @@ const changeAccountPassword = async (username, newPassword) => {
     return false;
   }
 }
-module.exports = { findAccountByUsername, activateAccount, changeAccountPassword };
+module.exports = { findAccountByUsername, activateAccount, changeAccountPassword, findAccountById };
