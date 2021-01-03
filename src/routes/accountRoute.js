@@ -26,6 +26,25 @@ router.get("/", async (req, res) => {
   res.status(200).send({ message: "Auth pages" }).end();
 });
 
+router.get('/profile', async (req, res) => {
+  passport.authorize('jwt', {session: false}, async (err, user, info) => {
+    if (err) {
+      return res.status(400).json({message: err.message});
+    }
+    if (info) {
+      console.log(info);
+      return res.status(400).json({message: info.message});
+    } else {
+      const findAccount = await findAccountByUsername(user.username);
+      if (findAccount.status) {
+        return res.json({account: findAccount.account});
+      } else {
+        return res.json({message: "User not found."})
+      }
+    }
+  })(req, res);
+}) 
+
 router.get("/signup", async (req, res) => {
   const findAccout = await Account.findOne({ username: "testUsername" });
   res.status(200).send({ message: "sign up pages", account: findAccout }).end();
