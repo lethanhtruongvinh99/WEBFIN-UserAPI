@@ -53,5 +53,14 @@ const changeAccountPassword = async (username, newPassword) => {
   } else {
     return false;
   }
+};
+
+const getTopPlayer = async () => {
+  try {
+    const result = await Account.find().sort({score: -1});
+    return {status: true, result: result};
+  } catch (err) {
+    return err;
+  }
 }
-module.exports = { findAccountByUsername, activateAccount, changeAccountPassword, findAccountById };
+module.exports = { findAccountByUsername, activateAccount, changeAccountPassword, findAccountById, getTopPlayer };
