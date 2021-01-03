@@ -19,4 +19,4 @@ const gameSchema = new Schema({
   isUpdatedAt: Date,
 });
 
-module.exports = mongoose.Schema("Game", gameSchema);
+module.exports = mongoose.model("Game", gameSchema);
