@@ -1,6 +1,14 @@
-const { update } = require("../models/room");
 const Room = require("../models/room");
 
+
+const getAllRoom = async () => {
+  try {
+    const result = await Room.find({isDeleted: false});
+    return { status: true, rooms: result}
+  } catch (err) {
+    return err;
+  }
+}
 const findRoomById = async (roomId) => {
   try {
     const result = await Room.findOne({ _id: roomId });
@@ -57,4 +65,4 @@ const addNewMemberToRoom = async (room, user) => {
   }
 };
 
-module.exports = { createNewRoom, findRoomById, addNewMessageToRoom, addNewMemberToRoom };
+module.exports = { createNewRoom, findRoomById, addNewMessageToRoom, addNewMemberToRoom, getAllRoom };

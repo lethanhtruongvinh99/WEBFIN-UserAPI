@@ -6,6 +6,7 @@ const {
   findRoomById,
   addNewMessageToRoom,
   addNewMemberToRoom,
+  getAllRoom,
 } = require("../controllers/rooms.controller");
 const Room = require("../models/room");
 
@@ -13,8 +14,24 @@ router.get("/add", (req, res) => {
   res.json("Create a new room!");
 });
 
-router.get("/", (req, res) => {
-  res.json("Get all available room!");
+router.get("/", async (req, res) => {
+  passport.authorize('jwt', {session: false}, async (err, user, info) => {
+    if (err) {
+      console.log("err");
+      return res.json({message: err.message});
+    } 
+    if (info) {
+      console.log(info);
+      return res.json({message:info.message});
+    } else {
+      const result = await getAllRoom();
+      if (result.status) {
+        return res.json({ rooms: result.rooms});
+      } else {
+        return res.json({message: "error"});
+      }
+    }
+  })(req, res);
 })
 router.post("/add", (req, res) => {
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
