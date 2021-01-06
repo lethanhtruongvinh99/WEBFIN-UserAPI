@@ -43,7 +43,7 @@ router.post("/detail", (req, res) => {
     } else {
       const result = await getRoomDetail(req.body.roomid);
       if (result.status) {
-        return res.json({ data: result.rooms });
+        return res.json({ data: result.data });
       } else {
         return res.json({ message: result.data });
       }
@@ -98,19 +98,23 @@ router.post("/join", (req, res) => {
           const addMember = await addNewMemberToRoom(room.room, user);
           // console.log(addMember);
           if (addMember.status) {
-            return res.status(200).json(addMember.updatedRoom);
-          } else {
             return res
-              .status(400)
-              .json({ message: "Cannot join that room", err: addMember.err });
+              .status(200)
+              .json({ auth: true, data: addMember.updatedRoom });
+          } else {
+            return res.status(400).json({
+              auth: false,
+              message: "Cannot join that room",
+              err: addMember.err,
+            });
           }
         } else {
-          return res.json(room.err);
+          return res.json({ auth: false, message: room.err });
         }
       } catch (err) {
         return res
           .status(400)
-          .json({ message: "Cannot find that room", err: err });
+          .json({ auth: false, message: "Cannot find that room", err: err });
       }
     }
   })(req, res);
