@@ -13,19 +13,14 @@ const {
 const { findGamesByUserId } = require("../controllers/games.controller");
 const router = express.Router();
 
-const CLIENT_API = "http://localhost:3000/verify";
-const CLIENT_API1 = "http://localhost:3000/recovery";
-// const CLIENT_API = "";
+// const CLIENT_API = "http://localhost:3000/verify";
+// const CLIENT_API1 = "http://localhost:3000/recovery";
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "finwebadv@gmail.com",
     pass: "FINWEBADV2020",
   },
-});
-
-router.get("/", async (req, res) => {
-  res.status(200).send({ message: "Auth pages" }).end();
 });
 
 router.get("/profile", async (req, res) => {
@@ -85,10 +80,6 @@ router.get("/rankchart", async (req, res) => {
   })(req, res);
 });
 
-router.get("/signup", async (req, res) => {
-  const findAccout = await Account.findOne({ username: "testUsername" });
-  res.status(200).send({ message: "sign up pages", account: findAccout }).end();
-});
 
 router.post("/signup", AccountValidate, (req, res, next) => {
   passport.authenticate("signup", { session: false }, (err, user, info) => {
@@ -108,7 +99,7 @@ router.post("/signup", AccountValidate, (req, res, next) => {
         from: "finwebadv@gmail.com",
         to: user.email,
         subject: "Verify your account",
-        text: `Click to verify ${CLIENT_API}?${token}`,
+        text: `Click to verify ${process.env.CLIENT}` + "/verify" + `?${token}`,
       };
       transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
@@ -129,9 +120,6 @@ router.post("/signup", AccountValidate, (req, res, next) => {
       });
     }
   })(req, res, next);
-});
-router.get("/login", (req, res) => {
-  res.status(200).send(`Login page`).end();
 });
 
 router.post("/login", AccountValidate, (req, res, next) => {
@@ -183,7 +171,10 @@ router.post("/recoveryrequest", async (req, res) => {
       from: "finwebadv@gmail.com",
       to: findAccount.account.email,
       subject: "Recovery Password for Account " + findAccount.account.username,
-      text: `Click to verify ${CLIENT_API1}?${hashUsername}`,
+      text:
+        `Click to recovery your password: ${process.env.CLIENT}` +
+        "/recovery" +
+        `?${hashUsername}`,
     };
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {

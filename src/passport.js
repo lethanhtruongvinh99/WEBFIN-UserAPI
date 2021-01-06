@@ -71,8 +71,14 @@ passport.use(
             if (result === true) {
               if (findAccount.isActivate) {
                 return done(null, findAccount);
+              } else if (findAccount.isDeleted) {
+                return done(null, false, {
+                  message: "Your account is blocked.",
+                });
               } else {
-                return done(null, false, { message: "Confirm via your e-mail." });
+                return done(null, false, {
+                  message: "Confirm via your e-mail.",
+                });
               }
             } else {
               return done(null, false, {

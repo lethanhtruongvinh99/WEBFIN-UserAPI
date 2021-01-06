@@ -1,20 +1,28 @@
 const Room = require("../models/room");
 
-
 const getAllRoom = async () => {
   try {
-    const result = await Room.find({isDeleted: false});
-    return { status: true, rooms: result}
+    const result = await Room.find({ isDeleted: false });
+    return { status: true, rooms: result };
   } catch (err) {
     return err;
   }
-}
+};
 const findRoomById = async (roomId) => {
   try {
     const result = await Room.findOne({ _id: roomId });
     return { status: true, room: result };
   } catch (err) {
     return { status: false, err: err };
+  }
+};
+
+const getRoomDetail = async (id) => {
+  try {
+    const result = await Room.findOne({ _id: id });
+    return { status: true, data: result };
+  } catch (err) {
+    return { status: false, data: err };
   }
 };
 const createNewRoom = async (room) => {
@@ -65,4 +73,11 @@ const addNewMemberToRoom = async (room, user) => {
   }
 };
 
-module.exports = { createNewRoom, findRoomById, addNewMessageToRoom, addNewMemberToRoom, getAllRoom };
+module.exports = {
+  createNewRoom,
+  findRoomById,
+  addNewMessageToRoom,
+  addNewMemberToRoom,
+  getAllRoom,
+  getRoomDetail,
+};

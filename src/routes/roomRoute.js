@@ -4,36 +4,54 @@ const passport = require("passport");
 const {
   createNewRoom,
   findRoomById,
-  addNewMessageToRoom,
   addNewMemberToRoom,
   getAllRoom,
+  getRoomDetail,
 } = require("../controllers/rooms.controller");
 const Room = require("../models/room");
 
-router.get("/add", (req, res) => {
-  res.json("Create a new room!");
-});
-
 router.get("/", async (req, res) => {
-  passport.authorize('jwt', {session: false}, async (err, user, info) => {
+  //get all room
+  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
       console.log("err");
-      return res.json({message: err.message});
-    } 
+      return res.json({ message: err.message });
+    }
     if (info) {
       console.log(info);
-      return res.json({message:info.message});
+      return res.json({ message: info.message });
     } else {
       const result = await getAllRoom();
       if (result.status) {
-        return res.json({ rooms: result.rooms});
+        return res.json({ rooms: result.rooms });
       } else {
-        return res.json({message: "error"});
+        return res.json({ message: "error" });
       }
     }
   })(req, res);
-})
+});
+
+router.post("/detail", (req, res) => {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
+    if (err) {
+      console.log("err");
+      return res.json({ message: err.message });
+    }
+    if (info) {
+      console.log(info);
+      return res.json({ message: info.message });
+    } else {
+      const result = await getRoomDetail(req.body.roomid);
+      if (result.status) {
+        return res.json({ data: result.rooms });
+      } else {
+        return res.json({ message: result.data });
+      }
+    }
+  })(req, res);
+});
 router.post("/add", (req, res) => {
+  //create new room
   passport.authenticate("jwt", { session: false }, async (err, user, info) => {
     if (err) {
       console.log("err at authenticate");
@@ -44,10 +62,13 @@ router.post("/add", (req, res) => {
       return res.json(info);
     } else {
       let room = new Room();
-      //   console.log(req.body.name);
       room.name = req.body.roomName;
-      room.createdBy = user._id;
+      // room.createdBy._id = user._id;
+      // room.createdBy.username = user.username;
+      room.createdBy = { ...user };
       room.gameSize = req.body.boardSize;
+      room.password = req.body.password;
+      room.timePerTurn = req.body.timePerTurn;
       room.members.push(user);
       room.isAvailable = true;
       room.isCreatedAt = new Date();
@@ -79,13 +100,17 @@ router.post("/join", (req, res) => {
           if (addMember.status) {
             return res.status(200).json(addMember.updatedRoom);
           } else {
-            return res.status(400).json({message: "Cannot join that room", err: addMember.err});
+            return res
+              .status(400)
+              .json({ message: "Cannot join that room", err: addMember.err });
           }
         } else {
           return res.json(room.err);
         }
       } catch (err) {
-        return res.status(400).json({message: "Cannot find that room", err: err});
+        return res
+          .status(400)
+          .json({ message: "Cannot find that room", err: err });
       }
     }
   })(req, res);
