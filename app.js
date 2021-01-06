@@ -168,10 +168,10 @@ io.on("connection", (socket) =>
     io.to(clients[roomIdT][orderUser - 1]).emit("turnName", orderUser === 1 ? "X" : "O");
   });
 
-  socket.on("sendMessage", ({ roomIdT, message, token }) =>
+  socket.on("sendMessage", ({ roomId, message, token }) =>
   {
     const decoded = jwt.verify(token, process.env.SECRET);
-    socket.broadcast.to(roomIdT).emit("message", {
+    socket.broadcast.to(roomId).emit("message", {
       message: message,
       username: decoded.username,
     });

@@ -10,108 +10,140 @@ const {
 } = require("../controllers/rooms.controller");
 const Room = require("../models/room");
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res) =>
+{
   //get all room
-  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       console.log("err");
       return res.json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.json({ message: info.message });
-    } else {
+    } else
+    {
       const result = await getAllRoom();
-      if (result.status) {
+      if (result.status)
+      {
         return res.json({ rooms: result.rooms });
-      } else {
+      } else
+      {
         return res.json({ message: "error" });
       }
     }
   })(req, res);
 });
 
-router.post("/detail", (req, res) => {
-  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+router.post("/detail", (req, res) =>
+{
+  passport.authenticate("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       console.log("err");
       return res.json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.json({ message: info.message });
-    } else {
-      const result = await getRoomDetail(req.body.roomid);
-      if (result.status) {
+    } else
+    {
+      const result = await getRoomDetail(req.body.roomId);
+      if (result.status)
+      {
         return res.json({ data: result.data });
-      } else {
+      } else
+      {
         return res.json({ message: result.data });
       }
     }
   })(req, res);
 });
-router.post("/add", (req, res) => {
+router.post("/add", (req, res) =>
+{
   //create new room
-  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       console.log("err at authenticate");
       return res.json(err);
     }
-    if (info) {
+    if (info)
+    {
       console.log("info");
       return res.json(info);
-    } else {
+    } else
+    {
       let room = new Room();
       room.name = req.body.roomName;
       // room.createdBy._id = user._id;
       // room.createdBy.username = user.username;
       room.createdBy = { ...user };
       room.gameSize = req.body.boardSize;
-      room.password = req.body.password;
-      room.timePerTurn = req.body.timePerTurn;
+      room.password = req.body.roomPassword;
+      room.timePerTurn = req.body.roomTimePerTurn;
       room.members.push(user);
       room.isAvailable = true;
       room.isCreatedAt = new Date();
       room.isDeleted = false;
       const result = await createNewRoom(room);
-      if (result.status) {
+      if (result.status)
+      {
         res.json(result.room);
-      } else {
+      } else
+      {
         res.json("error");
       }
     }
   })(req, res);
 });
-router.post("/join", (req, res) => {
-  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+router.post("/join", (req, res) =>
+{
+  passport.authenticate("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       console.log(err);
       return res.json(err);
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.json(info);
-    } else {
-      try {
+    } else
+    {
+      try
+      {
         const room = await findRoomById(req.body.roomId);
-        if (room.status) {
+        if (room.status)
+        {
           const addMember = await addNewMemberToRoom(room.room, user);
           // console.log(addMember);
-          if (addMember.status) {
+          if (addMember.status)
+          {
             return res
               .status(200)
               .json({ auth: true, data: addMember.updatedRoom });
-          } else {
+          } else
+          {
             return res.status(400).json({
               auth: false,
               message: "Cannot join that room",
               err: addMember.err,
             });
           }
-        } else {
+        } else
+        {
           return res.json({ auth: false, message: room.err });
         }
-      } catch (err) {
+      } catch (err)
+      {
         return res
           .status(400)
           .json({ auth: false, message: "Cannot find that room", err: err });
