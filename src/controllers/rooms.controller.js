@@ -73,6 +73,16 @@ const addNewMemberToRoom = async (room, user) => {
   }
 };
 
+const getHitoryRoom = async (accountId) => {
+  try {
+    //insert list is playerB
+    const result = await Room.find({ "createdBy._id": accountId });
+    return { status: true, data: result };
+  } catch (err) {
+    return { status: false, data: err };
+  }
+};
+
 module.exports = {
   createNewRoom,
   findRoomById,
@@ -80,4 +90,5 @@ module.exports = {
   addNewMemberToRoom,
   getAllRoom,
   getRoomDetail,
+  getHitoryRoom,
 };

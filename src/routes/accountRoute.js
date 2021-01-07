@@ -10,7 +10,7 @@ const {
   changeAccountPassword,
   getTopPlayer,
 } = require("../controllers/accounts.controller");
-const { findGamesByUserId } = require("../controllers/games.controller");
+const { getHitoryRoom } = require("../controllers/rooms.controller");
 const router = express.Router();
 
 // const CLIENT_API = "http://localhost:3000/verify";
@@ -51,11 +51,11 @@ router.get("/history", async (req, res) => {
       console.log(info);
       return res.status(400).json({ message: info.message });
     } else {
-      const listGames = await findGamesByUserId(user._id);
+      const listGames = await getHitoryRoom(user._id);
       if (listGames.status) {
-        return res.json({ history: listGames.games });
+        return res.status(200).json({ auth: true, data: listGames.data });
       } else {
-        return res.json({ message: "err" });
+        return res.status(400).json({ auth: false, data: listGames.data });
       }
     }
   })(req, res);
@@ -79,7 +79,6 @@ router.get("/rankchart", async (req, res) => {
     }
   })(req, res);
 });
-
 
 router.post("/signup", AccountValidate, (req, res, next) => {
   passport.authenticate("signup", { session: false }, (err, user, info) => {
