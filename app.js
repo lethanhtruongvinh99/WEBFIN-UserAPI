@@ -15,6 +15,7 @@ const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
 const { decode } = require("punycode");
+const { addInvitation, removeInvitation } = require('./src/controllers/accounts.controller');
 dotenv.config();
 
 var app = express();
@@ -101,7 +102,7 @@ io.on("connection", (socket) =>
       socket.join("onlineUsers");
       const decoded = jwt.verify(token, process.env.SECRET);
       socket.username = decoded.username;
-      onlineUsers.push({ username: socket.username });
+      onlineUsers.push({ username: socket.username, socketId: socket.id });
 
       //Broad cast to connected clients
       socket.to("onlineUsers").emit("onlineUsersChanged", { onlineUsers });
@@ -158,10 +159,10 @@ io.on("connection", (socket) =>
 
     console.log("SOCKET ON_JOIN -- socket.id_2: ", clients[roomIdT][orderUser - 1]);
 
-    socket.broadcast.to(roomIdT).emit("message", {
-      message: "Hello all!",
-      username: decoded.username,
-    });
+    // socket.broadcast.to(roomIdT).emit("message", {
+    //   message: "Hello all!",
+    //   username: decoded.username,
+    // });
 
     socket.join(roomIdT);
     io.to(roomIdT).emit("Username", decoded.username);
@@ -186,6 +187,17 @@ io.on("connection", (socket) =>
       opponentTurnName: opponentTurnName
     });
   });
+
+  socket.on('sendInvitation', async ({ target, token, roomId }) =>
+  {
+    const decoded = jwt.verify(token, process.env.SECRET);
+
+    const targetClient = onlineUsers.find((item) => item.username === target);
+
+    const result = await addInvitation(decoded._id, decoded.username, roomId, target);
+
+    socket.broadcast.to(targetClient.socketId).emit('newInvitation', { sender: decoded.username, target, roomId });
+  })
 });
 
 server.listen(process.env.PORT, () =>

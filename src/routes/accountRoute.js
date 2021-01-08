@@ -9,6 +9,7 @@ const {
   findAccountByUsername,
   changeAccountPassword,
   getTopPlayer,
+  getInvitations,
 } = require("../controllers/accounts.controller");
 const { getHitoryRoom } = require("../controllers/rooms.controller");
 const router = express.Router();
@@ -23,72 +24,98 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-router.get("/profile", async (req, res) => {
-  passport.authorize("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+router.get("/profile", async (req, res) =>
+{
+  passport.authorize("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       return res.status(400).json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.status(400).json({ message: info.message });
-    } else {
+    } else
+    {
       const findAccount = await findAccountByUsername(user.username);
-      if (findAccount.status) {
+      if (findAccount.status)
+      {
         return res.json({ account: findAccount.account });
-      } else {
+      } else
+      {
         return res.json({ message: "User not found." });
       }
     }
   })(req, res);
 });
 
-router.get("/history", async (req, res) => {
-  passport.authorize("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+router.get("/history", async (req, res) =>
+{
+  passport.authorize("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       return res.status(400).json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.status(400).json({ message: info.message });
-    } else {
+    } else
+    {
       const listGames = await getHitoryRoom(user._id);
-      if (listGames.status) {
+      if (listGames.status)
+      {
         return res.status(200).json({ auth: true, data: listGames.data });
-      } else {
+      } else
+      {
         return res.status(400).json({ auth: false, data: listGames.data });
       }
     }
   })(req, res);
 });
 
-router.get("/rankchart", async (req, res) => {
-  passport.authorize("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
+router.get("/rankchart", async (req, res) =>
+{
+  passport.authorize("jwt", { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
       return res.status(400).json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.status(400).json({ message: info.message });
-    } else {
+    } else
+    {
       const topPlayer = await getTopPlayer();
-      if (topPlayer.status) {
+      if (topPlayer.status)
+      {
         return res.json({ rankchart: topPlayer.result.slice(0, 5) });
-      } else {
+      } else
+      {
         return res.json({ message: "err" });
       }
     }
   })(req, res);
 });
 
-router.post("/signup", AccountValidate, (req, res, next) => {
-  passport.authenticate("signup", { session: false }, (err, user, info) => {
-    if (err) {
+router.post("/signup", AccountValidate, (req, res, next) =>
+{
+  passport.authenticate("signup", { session: false }, (err, user, info) =>
+  {
+    if (err)
+    {
       return res.status(400).json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.status(400).json({ message: info.message });
-    } else {
+    } else
+    {
       // console.log(user);
       const token = jwt.sign(
         { _id: user._id, username: user.username },
@@ -100,11 +127,14 @@ router.post("/signup", AccountValidate, (req, res, next) => {
         subject: "Verify your account",
         text: `Click to verify ${process.env.CLIENT}` + "/verify" + `?${token}`,
       };
-      transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
+      transporter.sendMail(mailOptions, function (error, info)
+      {
+        if (error)
+        {
           console.log(error);
           return res.json({ auth: false, message: "Error" });
-        } else {
+        } else
+        {
           console.log("Email sent: " + info.response);
           return res
             .status(200)
@@ -121,15 +151,20 @@ router.post("/signup", AccountValidate, (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/login", AccountValidate, (req, res, next) => {
-  passport.authenticate("login", { session: false }, (err, user, info) => {
-    if (err) {
+router.post("/login", AccountValidate, (req, res, next) =>
+{
+  passport.authenticate("login", { session: false }, (err, user, info) =>
+  {
+    if (err)
+    {
       return res.status(400).json({ message: err.message });
     }
-    if (info) {
+    if (info)
+    {
       console.log(info);
       return res.status(400).json({ message: info.message });
-    } else {
+    } else
+    {
       // console.log(user);
       const token = jwt.sign(
         { _id: user._id, username: user.username },
@@ -148,24 +183,31 @@ router.post("/login", AccountValidate, (req, res, next) => {
   })(req, res, next);
 });
 
-router.post("/verify", async (req, res) => {
+router.post("/verify", async (req, res) =>
+{
   const data = jwt.verify(req.body.token, process.env.SECRET);
-  try {
+  try
+  {
     const result = await activateAccount(data.username);
-    if (result) {
+    if (result)
+    {
       return res.json({ auth: true, message: "Verified" });
-    } else {
+    } else
+    {
       return res.json({ auth: false, message: "Failed to Verify" });
     }
-  } catch (err) {
+  } catch (err)
+  {
     return res.json({ message: "Error" });
   }
 });
 
-router.post("/recoveryrequest", async (req, res) => {
+router.post("/recoveryrequest", async (req, res) =>
+{
   const username = req.body.username;
   const findAccount = await findAccountByUsername(username);
-  if (findAccount.status) {
+  if (findAccount.status)
+  {
     const hashUsername = jwt.sign({ username: username }, process.env.SECRET);
     const mailOptions = {
       from: "finwebadv@gmail.com",
@@ -176,11 +218,14 @@ router.post("/recoveryrequest", async (req, res) => {
         "/recovery" +
         `?${hashUsername}`,
     };
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
+    transporter.sendMail(mailOptions, function (error, info)
+    {
+      if (error)
+      {
         console.log(error);
         return res.json({ auth: false, message: "Error" });
-      } else {
+      } else
+      {
         console.log("Email sent: " + info.response);
         return res
           .status(200)
@@ -191,19 +236,23 @@ router.post("/recoveryrequest", async (req, res) => {
           .end();
       }
     });
-  } else {
+  } else
+  {
     return res.json({ message: "Username is not exist!" });
   }
 });
 
-router.post("/recovery", async (req, res) => {
+router.post("/recovery", async (req, res) =>
+{
   const password = req.body.password;
   const data = jwt.verify(req.body.hashUsername, process.env.SECRET);
   console.log(data.username);
   const result = await changeAccountPassword(data.username, password);
-  if (result) {
+  if (result)
+  {
     return res.json({ auth: true, message: "Successfully!" });
-  } else {
+  } else
+  {
     return res.json({ auth: false, message: "Error" });
   }
 });
@@ -217,7 +266,8 @@ router.get(
 router.get(
   "/facebook/callback",
   passport.authenticate("facebook"),
-  (req, res) => {
+  (req, res) =>
+  {
     const token = req.user.accessToken;
     res.redirect(process.env.CLIENT + "/auth/" + token);
   }
@@ -227,10 +277,40 @@ router.get(
   "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
-router.get("/google/callback", passport.authenticate("google"), (req, res) => {
+router.get("/google/callback", passport.authenticate("google"), (req, res) =>
+{
   console.log(req.user);
   const token = req.user.accessToken;
   res.redirect(process.env.CLIENT + "/auth/" + token);
 });
+
+router.post('/invitations', (req, res) =>
+{
+  passport.authenticate('jwt', { session: false }, async (err, user, info) =>
+  {
+    if (err)
+    {
+      console.log(err);
+      return res.json(err);
+    }
+    if (info)
+    {
+      console.log(info);
+      return res.json(info);
+    } else
+    {
+      const result = await getInvitations(user._id);
+      console.log(result);
+      if (result.status)
+      {
+        res.status(200).json(result);
+      }
+      else
+      {
+        res.status(400).json({ message: 'Error' });
+      }
+    }
+  })(req, res);
+})
 
 module.exports = router;
