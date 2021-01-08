@@ -140,6 +140,7 @@ router.post("/login", AccountValidate, (req, res, next) => {
         .json({
           auth: true,
           accessToken: token,
+          username: user.username,
           message: "Logged in successfully!",
         })
         .end();
