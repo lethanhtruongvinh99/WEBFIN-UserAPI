@@ -15,7 +15,10 @@ const indexRouter = require("./src/routes/index");
 const authRouter = require("./src/routes/accountRoute");
 const passport = require("passport");
 const { decode } = require("punycode");
-const { addInvitation, removeInvitation } = require('./src/controllers/accounts.controller');
+const {
+  addInvitation,
+  removeInvitation,
+} = require("./src/controllers/accounts.controller");
 dotenv.config();
 
 var app = express();
@@ -31,8 +34,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => console.log(`Connected to databasae!`));
-db.on("error", (err) =>
-{
+db.on("error", (err) => {
   console.log(`Error when connecting database ${err.message}`);
 });
 
@@ -42,8 +44,7 @@ app.set("view engine", "hbs");
 
 app.use(cors());
 app.options("*", cors());
-app.use(function (req, res, next)
-{
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -67,14 +68,12 @@ app.use("/room", require("./src/routes/roomRoute"));
 app.use("/message", require("./src/routes/messageRoute"));
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next)
-{
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next)
-{
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -92,12 +91,9 @@ const io = socket(server, {
 let onlineUsers = [];
 let clients = [];
 let usersInRoom = [];
-io.on("connection", (socket) =>
-{
-  socket.on("login", ({ token }) =>
-  {
-    try
-    {
+io.on("connection", (socket) => {
+  socket.on("login", ({ token }) => {
+    try {
       console.log(`Connected!`);
       socket.join("onlineUsers");
       const decoded = jwt.verify(token, process.env.SECRET);
@@ -109,16 +105,13 @@ io.on("connection", (socket) =>
       //Send list of online users back to client
       socket.emit("onlineUsersChanged", { onlineUsers });
       //console.log(onlineUsers);
-    } catch (e)
-    {
+    } catch (e) {
       console.log(e);
     }
   });
 
-  socket.on("logout", () =>
-  {
-    try
-    {
+  socket.on("logout", () => {
+    try {
       onlineUsers = onlineUsers.filter(
         (item) => item.username !== socket.username
       );
@@ -127,14 +120,12 @@ io.on("connection", (socket) =>
       socket.leave("onlineUsers");
       console.log("Client logged out");
       //console.log(onlineUsers);
-    } catch (e)
-    {
+    } catch (e) {
       console.log(e);
     }
   });
 
-  socket.on("disconnect", () =>
-  {
+  socket.on("disconnect", () => {
     onlineUsers = onlineUsers.filter(
       (item) => item.username !== socket.username
     );
@@ -143,8 +134,7 @@ io.on("connection", (socket) =>
     console.log("Client Disconnected");
   });
 
-  socket.on("join", ({ roomIdT, token }) =>
-  {
+  socket.on("join", ({ roomIdT, token }) => {
     // console.log("join: " + roomIdT);
     // console.log(roomIdT + " " + token);
     const decoded = jwt.verify(token, process.env.SECRET);
@@ -157,7 +147,10 @@ io.on("connection", (socket) =>
     if (!clients[roomIdT]) clients[roomIdT] = [];
     clients[roomIdT].push(socket.id);
 
-    console.log("SOCKET ON_JOIN -- socket.id_2: ", clients[roomIdT][orderUser - 1]);
+    console.log(
+      "SOCKET ON_JOIN -- socket.id_2: ",
+      clients[roomIdT][orderUser - 1]
+    );
 
     // socket.broadcast.to(roomIdT).emit("message", {
     //   message: "Hello all!",
@@ -166,11 +159,13 @@ io.on("connection", (socket) =>
 
     socket.join(roomIdT);
     io.to(roomIdT).emit("Username", decoded.username);
-    io.to(clients[roomIdT][orderUser - 1]).emit("turnName", orderUser === 1 ? "X" : "O");
+    io.to(clients[roomIdT][orderUser - 1]).emit(
+      "turnName",
+      orderUser === 1 ? "X" : "O"
+    );
   });
 
-  socket.on("sendMessage", ({ roomId, message, token }) =>
-  {
+  socket.on("sendMessage", ({ roomId, message, token }) => {
     const decoded = jwt.verify(token, process.env.SECRET);
     socket.broadcast.to(roomId).emit("message", {
       message: message,
@@ -178,30 +173,55 @@ io.on("connection", (socket) =>
     });
   });
 
-  socket.on("sendMove", ({ roomIdT, move, token, opponentTurnName }) =>
-  {
+  socket.on("sendMove", ({ roomIdT, move, token, opponentTurnName }) => {
     const decoded = jwt.verify(token, process.env.SECRET);
     socket.broadcast.to(roomIdT).emit("sendMove", {
       move: move,
       username: decoded.username,
-      opponentTurnName: opponentTurnName
+      opponentTurnName: opponentTurnName,
     });
   });
 
-  socket.on('sendInvitation', async ({ target, token, roomId }) =>
-  {
+  socket.on("sendInvitation", async ({ target, token, roomId }) => {
     const decoded = jwt.verify(token, process.env.SECRET);
 
     const targetClient = onlineUsers.find((item) => item.username === target);
 
-    const result = await addInvitation(decoded._id, decoded.username, roomId, target);
+    const result = await addInvitation(
+      decoded._id,
+      decoded.username,
+      roomId,
+      target
+    );
 
-    socket.broadcast.to(targetClient.socketId).emit('newInvitation', { sender: decoded.username, target, roomId });
-  })
+    socket.broadcast
+      .to(targetClient.socketId)
+      .emit("newInvitation", { sender: decoded.username, target, roomId });
+  });
+
+  //leave room
+  socket.on("leaveRoom", ({ roomId, sign }) => {
+    // console.log(roomId + " " + sign);
+    if (sign === 3) {
+      socket.to(roomId).emit("guestOut", { message: "1 Khách đã thoát!" });
+      socket.leave(roomId);
+      console.log("Guest out");
+    }
+    if (sign === 2) {
+      console.log("PlayerB out");
+      socket.to(roomId).emit("playerBOut", { message: "Player B đã thoát!" });
+      socket.leave(roomId);
+    }
+    if (sign === 1) {
+      console.log("Host out");
+      socket.to(roomId).emit("hostOut", { message: "Chủ phòng đã thoát!" });
+      socket.leave(roomId);
+    }
+  });
+  //destroy room
 });
 
-server.listen(process.env.PORT, () =>
-{
+server.listen(process.env.PORT, () => {
   console.log(`....................................`);
   console.log(`Server is listening on port: ${process.env.PORT}`);
   console.log(`.                                  .`);

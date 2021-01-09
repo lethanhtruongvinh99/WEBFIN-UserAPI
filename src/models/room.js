@@ -7,7 +7,7 @@ const roomSchema = new Schema({
   //Room is only have 2 state is true or false, and only set 1 times.
   password: { type: String, trim: true, default: "" },
   timePerTurn: { type: Number, default: 15 },
-  isAvailable: { type: Boolean, require: true },
+  isAvailable: { type: Boolean, default: true },
   createdBy: {
     _id: {
       type: Schema.Types.ObjectId,

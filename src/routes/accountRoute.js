@@ -41,10 +41,10 @@ router.get("/profile", async (req, res) =>
       const findAccount = await findAccountByUsername(user.username);
       if (findAccount.status)
       {
-        return res.json({ account: findAccount.account });
+        return res.status(200).json({ account: findAccount.account });
       } else
       {
-        return res.json({ message: "User not found." });
+        return res.status(400).json({ message: "User not found." });
       }
     }
   })(req, res);
