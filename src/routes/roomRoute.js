@@ -8,6 +8,7 @@ const {
   getAllRoom,
   getRoomDetail,
   addRoomPlayerB,
+  createQuickPlayRoom,
 } = require("../controllers/rooms.controller");
 const message = require("../models/message");
 const Room = require("../models/room");
@@ -154,7 +155,7 @@ router.post('/leave', (req, res) => {
         if (result.data.createdBy._id.toString().localeCompare(user._id.toString()) === 0) {
           return res.status(200).json({sign: 1});
         }
-        if (result.data.playerB) {
+        if (result.data.hasOwnProperty('playerB')) {
            if (result.data.playerB._id.toString().localeCompare(user._id.toString()) === 0) {
             result.data.isAvailable = true;
             const fin = await Room.findOneAndUpdate({_id: result.data._id}, result.data);
@@ -201,6 +202,14 @@ router.post('/start', (req, res) => {
       }
     } 
   })(req, res);
+})
+router.post('/quickplay', async (req, res) => {
+  const result = await createQuickPlayRoom(req.body.host, req.body.player);
+  if (result.status) {
+    res.json({data: result.data});
+  } else {
+    res.json({message: result.err});
+  }
 })
 //close room when the play A aka owner leave.
 

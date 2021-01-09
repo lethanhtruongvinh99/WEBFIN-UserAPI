@@ -1,3 +1,4 @@
+const Account = require("../models/account");
 const Room = require("../models/room");
 
 const getAllRoom = async () => {
@@ -123,6 +124,21 @@ const startRoom = async (room) => {
     return { status: false, err: err };
   }
 };
+const createQuickPlayRoom = async (host, player) => {
+  const hostP = await Account.findOne({username: host});
+  const playerB = await Account.findOne({username: player});
+  if (!host || !player) {
+    return {status: false, err: "cannot find"};
+  }
+  const newRoom = new Room();
+  newRoom.createdBy = hostP;
+  newRoom.playerB = playerB;
+  const result = await newRoom.save();
+  if (!result) {
+    return {status: false, err: "Lỗi khi tạo phòng"};
+  } 
+  return {status: true, data: result};
+}
 module.exports = {
   createNewRoom,
   findRoomById,
@@ -132,5 +148,6 @@ module.exports = {
   getRoomDetail,
   getHitoryRoom,
   addRoomPlayerB,
-  startRoom
+  startRoom,
+  createQuickPlayRoom
 };

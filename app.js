@@ -135,6 +135,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join", ({ roomIdT, token }) => {
+    console.log(io.sockets.adapter.rooms);
+    console.log(socket.id);
     // console.log("join: " + roomIdT);
     // console.log(roomIdT + " " + token);
     const decoded = jwt.verify(token, process.env.SECRET);
@@ -163,10 +165,33 @@ io.on("connection", (socket) => {
       "turnName",
       orderUser === 1 ? "X" : "O"
     );
+
+    socket.on("leaveRoom", ({ roomId, sign }) => {
+      // console.log(roomId + " " + sign);
+      if (sign === 3) {
+        socket.to(roomId).emit("guestOut", { message: "1 Khách đã thoát!" });
+        socket.leave(roomId);
+        console.log("Guest out");
+      }
+      if (sign === 2) {
+        console.log("PlayerB out");
+        socket.to(roomId).emit("playerBOut", { message: "Player B đã thoát!" });
+        socket.leave(roomId);
+      }
+      if (sign === 1) {
+        console.log("Host out");
+        socket.to(roomId).emit("hostOut", { message: "Chủ phòng đã thoát!" });
+        socket.leave(roomId);
+      }
+      if (sign === null) {
+        socket.leave(roomId);
+      }
+    });
   });
 
   socket.on("sendMessage", ({ roomId, message, token }) => {
     const decoded = jwt.verify(token, process.env.SECRET);
+    console.log(io.sockets.adapter.rooms.get(roomId));
     socket.broadcast.to(roomId).emit("message", {
       message: message,
       username: decoded.username,
@@ -200,24 +225,7 @@ io.on("connection", (socket) => {
   });
 
   //leave room
-  socket.on("leaveRoom", ({ roomId, sign }) => {
-    // console.log(roomId + " " + sign);
-    if (sign === 3) {
-      socket.to(roomId).emit("guestOut", { message: "1 Khách đã thoát!" });
-      socket.leave(roomId);
-      console.log("Guest out");
-    }
-    if (sign === 2) {
-      console.log("PlayerB out");
-      socket.to(roomId).emit("playerBOut", { message: "Player B đã thoát!" });
-      socket.leave(roomId);
-    }
-    if (sign === 1) {
-      console.log("Host out");
-      socket.to(roomId).emit("hostOut", { message: "Chủ phòng đã thoát!" });
-      socket.leave(roomId);
-    }
-  });
+  
   //destroy room
 });
 
