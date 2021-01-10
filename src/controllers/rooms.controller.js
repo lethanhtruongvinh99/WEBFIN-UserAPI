@@ -37,16 +37,12 @@ const addNewMessageToRoom = async (room, message) => {
   try {
     let updatedRoom = room;
     updatedRoom.messages.push(message);
-    const result = await Room.findOneAndUpdate(
-      { _id: room._id },
-      updatedRoom,
-      (err) => {
-        if (err) {
-          console.log(err);
-          return { status: false, err: err };
-        }
+    const result = await Room.findOneAndUpdate({ _id: room._id }, updatedRoom, (err) => {
+      if (err) {
+        console.log(err);
+        return { status: false, err: err };
       }
-    );
+    });
     return { status: true, updatedRoom: result };
   } catch (err) {
     return { status: false, err: err };
@@ -57,16 +53,12 @@ const addNewMemberToRoom = async (room, user) => {
   try {
     let updatedRoom = room;
     updatedRoom.members.push(user._id);
-    const result = await Room.findOneAndUpdate(
-      { _id: room._id },
-      updatedRoom,
-      (err) => {
-        if (err) {
-          console.log(err);
-          return { status: false, err: err };
-        }
+    const result = await Room.findOneAndUpdate({ _id: room._id }, updatedRoom, (err) => {
+      if (err) {
+        console.log(err);
+        return { status: false, err: err };
       }
-    );
+    });
     return { status: true, updatedRoom: result };
   } catch (err) {
     return { status: false, err: err };
@@ -82,7 +74,21 @@ const getHitoryRoom = async (accountId) => {
     return { status: false, data: err };
   }
 };
-
+const addMoveToRoom = async (room, move) => {
+  try {
+    let updatedRoom = room;
+    updatedRoom.moveList.push(move);
+    const result = await Room.findOneAndUpdate({ _id: room._id }, updatedRoom, (err) => {
+      if (err) {
+        console.log(err);
+        return { status: false, err: err };
+      }
+    });
+    return { status: true, updatedRoom: result };
+  } catch (err) {
+    return { status: false, err: err };
+  }
+};
 module.exports = {
   createNewRoom,
   findRoomById,
@@ -91,4 +97,5 @@ module.exports = {
   getAllRoom,
   getRoomDetail,
   getHitoryRoom,
+  addMoveToRoom,
 };

@@ -7,6 +7,7 @@ const {
   addNewMemberToRoom,
   getAllRoom,
   getRoomDetail,
+  addMoveToRoom,
 } = require("../controllers/rooms.controller");
 const Room = require("../models/room");
 
@@ -153,4 +154,34 @@ router.post("/join", (req, res) =>
 });
 //close room when the play A aka owner leave.
 
+router.post("/move", (req, res) => {
+  passport.authenticate("jwt", { session: false }, async (err, user, info) => {
+    if (err) {
+      console.log("err at authenticate");
+      return res.json(err);
+    }
+    if (info) {
+      console.log("info");
+      return res.json(info);
+    } else {
+      try {
+        const room = await findRoomById(req.body.roomId);
+        if (room.status) {
+          let move = req.body.move;
+          const result = await addMoveToRoom(room, move);
+          if (result.status) {
+            res.json(result.status);
+          } else {
+            res.json("error");
+          }
+        } else {
+          return res.json({ auth: false, message: room.err });
+        }
+      } catch (error) {
+        return res.status(400).json({ auth: false, message: "Cannot find that room", err: err });
+      }
+     
+    }
+  })(req, res);
+});
 module.exports = router;
