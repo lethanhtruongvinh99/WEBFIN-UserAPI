@@ -8,8 +8,18 @@ const accountChema = new Schema({
   email: { type: String, unique: false, trim: true },
   password: { type: String, trim: true, minlength: 8 },
 
-  isActivate: {type: Boolean, default: false},
-  score: {type: Number, default: 0},
+  isActivate: { type: Boolean, default: false },
+  score: { type: Number, default: 0 },
+  invitations: [
+    {
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: "Account",
+      },
+      username: String,
+      roomId: String,
+    },
+  ],
   //rooms are created by that Account
   rooms: [
     {
@@ -31,9 +41,9 @@ const accountChema = new Schema({
       isCreatedAt: Date,
     },
   ],
-  role: {type: Number, default: 0},
-  isDeleted: {type: Boolean, default: false},
-  isCreatedAt: {type: Date, default: new Date},
-  isUpdatedAt: {type: Date, default: null},
+  role: { type: Number, default: 0 },
+  isDeleted: { type: Boolean, default: false },
+  isCreatedAt: { type: Date, default: new Date() },
+  isUpdatedAt: { type: Date, default: null },
 });
 module.exports = mongoose.model("Account", accountChema);

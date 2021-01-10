@@ -1,3 +1,4 @@
+const Account = require("../models/account");
 const Room = require("../models/room");
 
 const getAllRoom = async () => {
@@ -86,9 +87,64 @@ const addMoveToRoom = async (room, move) => {
     });
     return { status: true, updatedRoom: result };
   } catch (err) {
+    return { status: false, data: err };
+  }
+}
+const addRoomPlayerB = async (room, playerB) => {
+  try {
+    let updatedRoom = room;
+    updatedRoom.playerB = playerB;
+    updatedRoom.isAvailable = false;
+    const result = await Room.findOneAndUpdate(
+      { _id: room._id },
+      updatedRoom,
+      (err) => {
+        if (err) {
+          console.log(err);
+          return { status: false, err: err };
+        }
+      }
+    );
+    return { status: true, data: result };
+  } catch (err) {
+    return { status: false, data: err };
+  }
+};
+
+const startRoom = async (room) => {
+  try {
+    const updatedRoom = room;
+    updatedRoom.isAvailable = false;
+    const result = await Room.findOneAndUpdate(
+      { _id: room._id },
+      updatedRoom,
+      (err) => {
+        if (err) {
+          console.log(err);
+          return { status: false, err: err };
+        }
+      }
+    );
+    return { status: true, data: result };
+  } catch (err) {
     return { status: false, err: err };
   }
 };
+const createQuickPlayRoom = async (host, player) => {
+  const hostP = await Account.findOne({username: host});
+  const playerB = await Account.findOne({username: player});
+  if (!host || !player) {
+    return {status: false, err: "cannot find"};
+  }
+  const newRoom = new Room();
+  newRoom.createdBy = hostP;
+  newRoom.playerB = playerB;
+  const result = await newRoom.save();
+  if (!result) {
+    return {status: false, err: "Lỗi khi tạo phòng"};
+  } 
+  return {status: true, data: result};
+}
 module.exports = {
   createNewRoom,
   findRoomById,
@@ -98,4 +154,7 @@ module.exports = {
   getRoomDetail,
   getHitoryRoom,
   addMoveToRoom,
+  addRoomPlayerB,
+  startRoom,
+  createQuickPlayRoom
 };
