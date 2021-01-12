@@ -138,19 +138,17 @@ const addInvitation = async (id, senderUsername, roomId, targetUsername) =>
   }
 };
 
-const removeInvitation = async (id, senderUsername, roomId, targetUsername) =>
+const removeInvitation = async (roomId, targetUsername) =>
 {
   try
   {
-    let targetUser = await Account.find({ username: targetUsername });
-    const findIndex = targetUser.invitations.find((item) => item.id === id);
-    targetUser.invitations = [
-      ...targetUser.invitations.splice(targetUser.invitations(findIndex, 1)),
-    ];
-    targetUser.invitations.push({ id: id, username: senderUsername, roomId });
+    let targetUser = await Account.findOne({ username: targetUsername });
+
+    const updatedInvitations = targetUser.invitations.filter((item) => item.roomId !== roomId);
+
     const result = await Account.findOneAndUpdate(
       { username: targetUsername },
-      targetUser
+      { $set: { invitations: updatedInvitations } }
     );
     if (result)
     {

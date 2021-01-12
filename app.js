@@ -153,8 +153,8 @@ io.on("connection", (socket) =>
 
   socket.on("join", ({ roomIdT, token }) =>
   {
-    console.log(io.sockets.adapter.rooms);
-    console.log(socket.id);
+    //console.log(io.sockets.adapter.rooms);
+    //console.log(socket.id);
     // console.log("join: " + roomIdT);
     // console.log(roomIdT + " " + token);
     const decoded = jwt.verify(token, process.env.SECRET);
@@ -162,15 +162,15 @@ io.on("connection", (socket) =>
     usersInRoom[roomIdT].push(decoded.username);
 
     var orderUser = usersInRoom[roomIdT].length;
-    console.log("SOCKET ON_JOIN -- OrderUser: ", usersInRoom[roomIdT].length);
+    //console.log("SOCKET ON_JOIN -- OrderUser: ", usersInRoom[roomIdT].length);
 
     if (!clients[roomIdT]) clients[roomIdT] = [];
     clients[roomIdT].push(socket.id);
 
-    console.log(
-      "SOCKET ON_JOIN -- socket.id_2: ",
-      clients[roomIdT][orderUser - 1]
-    );
+    // console.log(
+    //   "SOCKET ON_JOIN -- socket.id_2: ",
+    //   clients[roomIdT][orderUser - 1]
+    // );
 
     // socket.broadcast.to(roomIdT).emit("message", {
     //   message: "Hello all!",
@@ -215,7 +215,7 @@ io.on("connection", (socket) =>
   socket.on("sendMessage", ({ roomId, message, token }) =>
   {
     const decoded = jwt.verify(token, process.env.SECRET);
-    console.log(io.sockets.adapter.rooms.get(roomId));
+    //console.log(io.sockets.adapter.rooms.get(roomId));
     socket.broadcast.to(roomId).emit("message", {
       message: message,
       username: decoded.username,
@@ -282,7 +282,6 @@ io.on("connection", (socket) =>
 
         if (!createdRoom)
         {
-          console.log('why tf do you roll?');
           //Rollback
           quickJoinQueue.unshift(playerB);
           quickJoinQueue.unshift(host);
@@ -292,9 +291,6 @@ io.on("connection", (socket) =>
         //Find relevant sockets to emit
         const hostSocket = onlineUsers.find((item) => item.username === host.username);
         const playerBSocket = onlineUsers.find((item) => item.username === playerB.username);
-
-        console.log(hostSocket);
-        console.log(playerBSocket);
 
         //Emit
         socket.broadcast.to(hostSocket.socketId).emit('quickRoomCreated', createdRoom);
@@ -307,6 +303,12 @@ io.on("connection", (socket) =>
       console.log(e);
     }
 
+  })
+
+  socket.on('removeInvitations', async ({ token, roomId }) =>
+  {
+    const decoded = jwt.verify(token, process.env.SECRET);
+    await removeInvitation(roomId, decoded.username);
   })
 
   //leave room
