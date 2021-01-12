@@ -64,6 +64,11 @@ const roomSchema = new Schema({
   isDeleted: { type: Boolean, default: false },
   isCreatedAt: { type: Date, default: new Date() },
   isUpdatedAt: Date,
+  // username - who makes the first move
+  playerGoFirst: { type: String },
+  // "X" or "O"
+  firstTurnNotation: { type: String, default: "X" },
+  moveList: [{ x: Number, y: Number }],
 });
 
 module.exports = mongoose.model("Room", roomSchema);
