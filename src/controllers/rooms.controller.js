@@ -1,143 +1,182 @@
 const Account = require("../models/account");
 const Room = require("../models/room");
 
-const getAllRoom = async () => {
-  try {
-    const result = await Room.find({ isDeleted: false });
-    return { status: true, rooms: result };
-  } catch (err) {
+const getAllRoom = async () =>
+{
+  try
+  {
+    const awaiting = await Room.find({ isAvailable: true });
+    const ongoing = await Room.find({ isAvailable: false, winner: { username: '' } });
+    return { status: true, rooms: { awaiting, ongoing } };
+  } catch (err)
+  {
     return err;
   }
 };
-const findRoomById = async (roomId) => {
-  try {
+const findRoomById = async (roomId) =>
+{
+  try
+  {
     const result = await Room.findOne({ _id: roomId });
     return { status: true, room: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, err: err };
   }
 };
 
-const getRoomDetail = async (id) => {
-  try {
+const getRoomDetail = async (id) =>
+{
+  try
+  {
     const result = await Room.findOne({ _id: id });
     return { status: true, data: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, data: err };
   }
 };
-const createNewRoom = async (room) => {
-  try {
+const createNewRoom = async (room) =>
+{
+  try
+  {
     const result = await room.save();
     return { status: true, room: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, err: err };
   }
 };
-const addNewMessageToRoom = async (room, message) => {
-  try {
+const addNewMessageToRoom = async (room, message) =>
+{
+  try
+  {
     let updatedRoom = room;
     updatedRoom.messages.push(message);
     const result = await Room.findOneAndUpdate(
       { _id: room._id },
       updatedRoom,
-      (err) => {
-        if (err) {
+      (err) =>
+      {
+        if (err)
+        {
           console.log(err);
           return { status: false, err: err };
         }
       }
     );
     return { status: true, updatedRoom: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, err: err };
   }
 };
 
-const addNewMemberToRoom = async (room, user) => {
-  try {
+const addNewMemberToRoom = async (room, user) =>
+{
+  try
+  {
     let updatedRoom = room;
     updatedRoom.members.push(user._id);
     const result = await Room.findOneAndUpdate(
       { _id: room._id },
       updatedRoom,
-      (err) => {
-        if (err) {
+      (err) =>
+      {
+        if (err)
+        {
           console.log(err);
           return { status: false, err: err };
         }
       }
     );
     return { status: true, updatedRoom: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, err: err };
   }
 };
 
-const getHitoryRoom = async (accountId) => {
-  try {
+const getHitoryRoom = async (accountId) =>
+{
+  try
+  {
     //insert list is playerB
-    const result = await Room.find({ "createdBy._id": accountId });
+    const result = await Room.find({ $or: [{ "createdBy._id": accountId }, { "playerB._id": accountId }] });
     return { status: true, data: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, data: err };
   }
 };
 
-const addRoomPlayerB = async (room, playerB) => {
-  try {
+const addRoomPlayerB = async (room, playerB) =>
+{
+  try
+  {
     let updatedRoom = room;
     updatedRoom.playerB = playerB;
     updatedRoom.isAvailable = false;
     const result = await Room.findOneAndUpdate(
       { _id: room._id },
       updatedRoom,
-      (err) => {
-        if (err) {
+      (err) =>
+      {
+        if (err)
+        {
           console.log(err);
           return { status: false, err: err };
         }
       }
     );
     return { status: true, data: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, data: err };
   }
 };
 
-const startRoom = async (room) => {
-  try {
+const startRoom = async (room) =>
+{
+  try
+  {
     const updatedRoom = room;
     updatedRoom.isAvailable = false;
     const result = await Room.findOneAndUpdate(
       { _id: room._id },
       updatedRoom,
-      (err) => {
-        if (err) {
+      (err) =>
+      {
+        if (err)
+        {
           console.log(err);
           return { status: false, err: err };
         }
       }
     );
     return { status: true, data: result };
-  } catch (err) {
+  } catch (err)
+  {
     return { status: false, err: err };
   }
 };
-const createQuickPlayRoom = async (host, player) => {
-  const hostP = await Account.findOne({username: host});
-  const playerB = await Account.findOne({username: player});
-  if (!host || !player) {
-    return {status: false, err: "cannot find"};
+const createQuickPlayRoom = async (host, player) =>
+{
+  const hostP = await Account.findOne({ username: host });
+  const playerB = await Account.findOne({ username: player });
+  if (!host || !player)
+  {
+    return { status: false, err: "cannot find" };
   }
   const newRoom = new Room();
   newRoom.createdBy = hostP;
   newRoom.playerB = playerB;
   const result = await newRoom.save();
-  if (!result) {
-    return {status: false, err: "Lỗi khi tạo phòng"};
-  } 
-  return {status: true, data: result};
+  if (!result)
+  {
+    return { status: false, err: "Lỗi khi tạo phòng" };
+  }
+  return { status: true, data: result };
 }
 module.exports = {
   createNewRoom,
