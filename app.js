@@ -19,7 +19,7 @@ const {
   addInvitation,
   removeInvitation,
 } = require("./src/controllers/accounts.controller");
-const { createNewRoom } = require("./src/controllers/rooms.controller");
+const { setWinnerForRoom } = require("./src/controllers/rooms.controller");
 const Room = require("./src/models/room");
 
 dotenv.config();
@@ -153,29 +153,15 @@ io.on("connection", (socket) =>
 
   socket.on("join", ({ roomIdT, token }) =>
   {
-    //console.log(io.sockets.adapter.rooms);
-    //console.log(socket.id);
-    // console.log("join: " + roomIdT);
-    // console.log(roomIdT + " " + token);
+
     const decoded = jwt.verify(token, process.env.SECRET);
     if (!usersInRoom[roomIdT]) usersInRoom[roomIdT] = [];
     usersInRoom[roomIdT].push(decoded.username);
 
     var orderUser = usersInRoom[roomIdT].length;
-    //console.log("SOCKET ON_JOIN -- OrderUser: ", usersInRoom[roomIdT].length);
 
     if (!clients[roomIdT]) clients[roomIdT] = [];
     clients[roomIdT].push(socket.id);
-
-    // console.log(
-    //   "SOCKET ON_JOIN -- socket.id_2: ",
-    //   clients[roomIdT][orderUser - 1]
-    // );
-
-    // socket.broadcast.to(roomIdT).emit("message", {
-    //   message: "Hello all!",
-    //   username: decoded.username,
-    // });
 
     socket.join(roomIdT);
     io.to(roomIdT).emit("Username", decoded.username);
@@ -311,6 +297,23 @@ io.on("connection", (socket) =>
     await removeInvitation(roomId, decoded.username);
   })
 
+  socket.on('startGame', ({ roomId }) =>
+  {
+    socket.broadcast.to(roomId).emit('gameStarted');
+  })
+
+  socket.on('endGame', async ({ roomId, winner }) =>
+  {
+    console.log("winner is " + winner);
+    const result = await setWinnerForRoom({ roomId, winner });
+    socket.broadcast.to(roomId).emit('gameEnded', result.data.winner.username);
+    socket.emit('gameEnded', result.data.winner.username);
+  })
+
+  socket.on('setRoomReady', ({ roomId }) =>
+  {
+    socket.broadcast.to(roomId).emit('roomIsReady');
+  })
   //leave room
 
   //destroy room

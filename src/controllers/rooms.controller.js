@@ -8,7 +8,7 @@ const getAllRoom = async () =>
   try
   {
     const awaiting = await Room.find({ isAvailable: true });
-    const ongoing = await Room.find({ isAvailable: false, winner: { username: '' } });
+    const ongoing = await Room.find({ isAvailable: false, isEnd: false });
     return { status: true, rooms: { awaiting, ongoing } };
   } catch (err)
   {
@@ -124,7 +124,8 @@ const addMoveToRoom = async (room, move) =>
         return { status: false, err: err };
       }
     });
-    if (!listGame[room._id]) {
+    if (!listGame[room._id])
+    {
       listGame[room._id] = new Game(room.gameSize);
       console.log("==============ADD MOVE TO ROOM44444444444444: =======================");
     }
@@ -197,6 +198,51 @@ const createQuickPlayRoom = async (host, player) =>
   }
   return { status: true, data: result };
 };
+
+const setWinnerForRoom = async ({ roomId, winner }) =>
+{
+  try
+  {
+    const room = await Room.findOne({ _id: roomId });
+    if (room)
+    {
+      let updatedWinner = {};
+      if (winner === 'X')
+      {
+        updatedWinner = await Account.findOne({ _id: room.createdBy._id });
+      }
+      else
+      {
+        updatedWinner = await Account.findOne({ _id: room.playerB._id });
+      }
+
+      const newScore = Math.round(60 / room.timePerTurn);
+      updatedWinner.score = updatedWinner.score + newScore;
+
+      //Update user
+      await Account.findOneAndUpdate({ _id: updatedWinner._id }, updatedWinner);
+
+      room.winner = updatedWinner;
+      room.isEnd = true;
+
+      const result = await Room.findOneAndUpdate({ _id: roomId }, room);
+      if (result)
+      {
+        return { status: true, data: result }
+      }
+      else
+      {
+        return { status: true, data: {} }
+      }
+
+    }
+  } catch (e)
+  {
+    console.log(e);
+    return { status: false, data: {} }
+  }
+
+}
 module.exports = {
   createNewRoom,
   findRoomById,
@@ -209,4 +255,5 @@ module.exports = {
   addRoomPlayerB,
   startRoom,
   createQuickPlayRoom,
+  setWinnerForRoom,
 };
