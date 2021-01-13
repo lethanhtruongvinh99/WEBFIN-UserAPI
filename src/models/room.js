@@ -68,7 +68,7 @@ const roomSchema = new Schema({
   playerGoFirst: { type: String },
   // "X" or "O"
   firstTurnNotation: { type: String, default: "X" },
-  moveList: [{ x: Number, y: Number }],
+  moveList: [{ x: Number, y: Number, username: String, symbol: String }],
 });
 
 module.exports = mongoose.model("Room", roomSchema);

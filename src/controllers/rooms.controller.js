@@ -113,7 +113,7 @@ const addMoveToRoom = async (room, move) =>
     //console.log("==============ADD MOVE TO ROOM222222.5: =======================", room.moveList);
     //console.log("==============ADD MOVE TO ROOM222222.5: =======================", room.name);
     updatedRoom.moveList.push({ ...move });
-    console.log("==============ADD MOVE TO ROOM33333333333: =======================");
+    //console.log("==============ADD MOVE TO ROOM33333333333: =======================");
     //console.log("==============ADD MOVE TO ROOM: ", updatedRoom.moveList);
 
     const result = await Room.findOneAndUpdate({ _id: room._id }, updatedRoom, (err) =>
@@ -127,7 +127,7 @@ const addMoveToRoom = async (room, move) =>
     if (!listGame[room._id])
     {
       listGame[room._id] = new Game(room.gameSize);
-      console.log("==============ADD MOVE TO ROOM44444444444444: =======================");
+      //console.log("==============ADD MOVE TO ROOM44444444444444: =======================");
     }
     let res = listGame[room._id].setPosition(move.x, move.y);
     if (!res) return { status: false, message: "Invalid Move!" };

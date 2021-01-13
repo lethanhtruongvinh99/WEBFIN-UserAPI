@@ -45,5 +45,11 @@ const accountChema = new Schema({
   isDeleted: { type: Boolean, default: false },
   isCreatedAt: { type: Date, default: new Date() },
   isUpdatedAt: { type: Date, default: null },
+  countTotalGame: { type: Number, default: 0 },
+  totalGame: { type: Number, default: 0 },
+  victories: { type: Number, default: 0 },
+  draws: { type: Number, default: 0 },
+  defeats: { type: Number, default: 0 },
+  winRate: { type: Number, default: 0 },
 });
 module.exports = mongoose.model("Account", accountChema);
