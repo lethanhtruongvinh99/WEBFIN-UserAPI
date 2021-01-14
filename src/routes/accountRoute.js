@@ -64,13 +64,13 @@ router.get("/history", async (req, res) =>
       return res.status(400).json({ message: info.message });
     } else
     {
-      const listGames = await getHitoryRoom(user._id);
-      if (listGames.status)
+      const historyList = await getHitoryRoom(user._id);
+      if (historyList.status)
       {
-        return res.status(200).json({ auth: true, data: listGames.data });
+        return res.status(200).json({ auth: true, data: historyList.data });
       } else
       {
-        return res.status(400).json({ auth: false, data: listGames.data });
+        return res.status(400).json({ auth: false, data: historyList.err });
       }
     }
   })(req, res);
@@ -312,23 +312,4 @@ router.post('/invitations', (req, res) =>
     }
   })(req, res);
 })
-
-router.get("/gamestats", async (req, res) => {
-  passport.authorize("jwt", { session: false }, async (err, user, info) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
-    if (info) {
-      console.log(info);
-      return res.status(400).json({ message: info.message });
-    } else {
-      const gameStats = await getGameStats(user.username);
-      if (gameStats.status) {
-        return res.status(200).json({ gamestats: gameStats.data });
-      } else {
-        return res.status(400).json({ message: "User not found." });
-      }
-    }
-  })(req, res);
-});
 module.exports = router;

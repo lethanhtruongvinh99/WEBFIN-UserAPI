@@ -118,26 +118,6 @@ const removeInvitation = async (roomId, targetUsername) => {
   }
 };
 
-const getGameStats = async (username) => {
-  try {
-    const findAccount = await findAccountByUsername(user.username);
-    if (findAccount.status) {
-      let gameStats = {
-        score: findAccount.account.score,
-        totalGame: findAccount.account.totalGame,
-        victories: findAccount.account.victories,
-        draws: findAccount.account.draws,
-        defeats: findAccount.account.defeats,
-        winRate: findAccount.account.winRate,
-      };
-      return { status: true, data: gameStats };
-    }
-    return { status: false, data: "Get gamestats: Error" };
-  } catch (err) {
-    return err;
-  }
-};
-
 module.exports = {
   findAccountByUsername,
   activateAccount,
@@ -147,5 +127,4 @@ module.exports = {
   addInvitation,
   removeInvitation,
   getInvitations,
-  getGameStats,
 };

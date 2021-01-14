@@ -165,7 +165,7 @@ passport.use(
               newAccount.role = 0;
               newAccount.isCreatedAt = new Date().getTime();
               newAccount.accessToken = jwt.sign(
-                { _id: fbData.id, username: user_name },
+                { _id: newAccount._id, username: user_name },
                 process.env.SECRET
               );
               newAccount.save(function (err) {
@@ -220,7 +220,7 @@ passport.use(
               newAccount.role = 0;
               newAccount.isCreatedAt = new Date().getTime();
               newAccount.accessToken = jwt.sign(
-                { _id: profile.id, username: user_name },
+                { _id: newAccount._id, username: user_name },
                 process.env.SECRET
               );
               newAccount.save(function (err) {
