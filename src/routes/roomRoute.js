@@ -283,8 +283,8 @@ router.post("/move", (req, res) =>
         if (room.status)
         {
           let move = req.body.move;
-          // console.log("POST:room/move: ", move.x);
-          // console.log("POST:room/move: ", move.y);
+          console.log("POST:room/move: ", move.x);
+          console.log("POST:room/move: ", move.y);
           const result = await addMoveToRoom(room.room, move);
           if (result.status)
           {
